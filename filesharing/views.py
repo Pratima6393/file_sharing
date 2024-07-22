@@ -16,6 +16,8 @@ from rest_framework.decorators import api_view, permission_classes
 from django.utils.http import int_to_base36
 from .permissions import *
 
+
+#--------------------------user register--------------------------
 @permission_classes([AllowAny])
 class SignUpView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -32,6 +34,8 @@ class SignUpView(generics.CreateAPIView):
             [user.email],
             fail_silently=False,
         )
+
+#--------------------verify user email------------------------
 @permission_classes([AllowAny])
 class VerifyEmailView(APIView):
     def get(self, request):
@@ -46,7 +50,8 @@ class VerifyEmailView(APIView):
             return Response({'error': 'Activation link has expired'}, status=status.HTTP_400_BAD_REQUEST)
         except jwt.exceptions.DecodeError:
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+#---------------------user login view-------------------------        
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
@@ -58,6 +63,7 @@ class CustomAuthToken(ObtainAuthToken):
         else:
             return Response({'error': 'Invalid user'}, status=status.HTTP_400_BAD_REQUEST)
 
+#---------------------only upload operational user upload------------------------------
 class FileUploadView(generics.CreateAPIView):
     queryset = File.objects.all()
     serializer_class = FileSerializer
@@ -74,7 +80,7 @@ class FileUploadView(generics.CreateAPIView):
             serializer.save(uploaded_by=self.request.user)
         else:
             return Response({'error': 'No file was uploaded.'}, status=status.HTTP_400_BAD_REQUEST)
-
+#--------------------file download class--------------------
 class FileDownloadView(APIView):
     permission_classes = [IsAuthenticated,IsClientUser]
     def get(self, request, *args, **kwargs):
@@ -91,7 +97,7 @@ class FileDownloadView(APIView):
             return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
         except File.DoesNotExist:
             return Response({'error': 'File not found'}, status=status.HTTP_404_NOT_FOUND)
-
+#-------------------all file list--------------------------
 class FileListView(generics.ListAPIView):
     serializer_class = FileSerializer
     permission_classes = [IsAuthenticated,IsClientUser]
