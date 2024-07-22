@@ -1,5 +1,4 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView
 from .views import SignUpView, VerifyEmailView, CustomAuthToken, FileUploadView, FileListView, FileDownloadView
 
 urlpatterns = [
@@ -9,5 +8,6 @@ urlpatterns = [
     path('upload-file/', FileUploadView.as_view(), name='upload-file'),
     path('list-files/', FileListView.as_view(), name='list-files'),
     path('download-file/<int:file_id>/', FileDownloadView.as_view(), name='download-file'),
+    
     
 ]

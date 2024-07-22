@@ -5,7 +5,6 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.core.mail import send_mail
 from django.conf import settings
-from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from .models import User, File
 from .serializers import UserSerializer, FileSerializer
@@ -14,6 +13,7 @@ import jwt
 import datetime
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import api_view, permission_classes
+from django.utils.http import int_to_base36
 from .permissions import *
 
 @permission_classes([AllowAny])
@@ -98,19 +98,5 @@ class FileListView(generics.ListAPIView):
 
 
     def get_queryset(self):
-        
         return File.objects.all()
-class ActualFileDownloadView(APIView):
-    def get(self, request, token):
-        try:
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-            file = File.objects.get(id=payload['file_id'])
-            if request.user != file.uploaded_by:
-                return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
-            response = HttpResponse(file.file, content_type='application/octet-stream')
-            response['Content-Disposition'] = f'attachment; filename="{file.file.name}"'
-            return response
-        except jwt.ExpiredSignatureError:
-            return Response({'error': 'Download link has expired'}, status=status.HTTP_400_BAD_REQUEST)
-        except jwt.exceptions.DecodeError:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+    
