@@ -80,6 +80,7 @@ class FileUploadView(generics.CreateAPIView):
             serializer.save(uploaded_by=self.request.user)
         else:
             return Response({'error': 'No file was uploaded.'}, status=status.HTTP_400_BAD_REQUEST)
+        
 #--------------------file download class--------------------
 class FileDownloadView(APIView):
     permission_classes = [IsAuthenticated,IsClientUser]
@@ -97,6 +98,7 @@ class FileDownloadView(APIView):
             return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
         except File.DoesNotExist:
             return Response({'error': 'File not found'}, status=status.HTTP_404_NOT_FOUND)
+        
 #-------------------all file list--------------------------
 class FileListView(generics.ListAPIView):
     serializer_class = FileSerializer
